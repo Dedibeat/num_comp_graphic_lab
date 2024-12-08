@@ -1,0 +1,89 @@
+#include <GL/glut.h>
+#include <cstdio>
+#include<bits/stdc++.h>
+using namespace std;
+
+/*
+void circle(double ox, double oy, double r){
+    glMatrixMode(GL_MODELVIEW)
+    glLoadIdentity();
+    glTranslatef(ox, oy, 0);
+
+
+}
+
+*/
+
+float len = 1.0;
+
+float k;
+
+int mouseX, mouseY;
+
+float deltaX,deltaY;
+
+float TriX = 50, TriY = 50;
+
+float tick = 0.0;
+
+void passiveMotion(int x, int y) {
+    mouseX = x;
+    mouseY = y;
+    deltaX = x - TriX;
+    deltaY = y - TriY;
+    k = sqrt(deltaX * deltaX + deltaY * deltaY)/len;
+    glutPostRedisplay();
+}
+
+static void resize(int width, int height) {
+    glViewport(0, 0, width, height);
+    glMatrixMode(GL_PROJECTION);
+    glLoadIdentity();
+    gluOrtho2D(0, width, height, 0); // Set the projection matrix to match the window size
+}
+
+
+float conv_x(int pixel, int width) {
+    return (float(pixel) / float(width)) * 2.0f - 1.0f; // Convert to NDC (Normalized Device Coordinates)
+}
+
+float conv_y(int pixel, int height) {
+    return (float(pixel) / float(height)) * 2.0f - 1.0f; // Convert to NDC (Normalized Device Coordinates)
+}
+
+void display() {
+    glClear(GL_COLOR_BUFFER_BIT);
+    glMatrixMode(GL_MODELVIEW);
+    glLoadIdentity();
+    glColor3f(1, 0, 0); // Set color to red
+
+    // Convert mouseX, mouseY to NDC
+   // float x = conv_x(mouseX, 500);  // Assuming window width is 500
+   // float y = conv_y(mouseY, 500);  // Assuming window height is 500
+    //x = 0, y = 0;
+   // cout << "x, y:" << x << ' ' << y << endl;
+    glBegin(GL_TRIANGLES);
+        glVertex2f(TriX + (deltaX/k),TriY + deltaY/k);
+        glVertex2f(TriX + (deltaX/k) + 10,TriY + deltaY/k);
+        glVertex2f(TriX + deltaX/k - 10,TriY + deltaY/k - 10);
+    glEnd();
+    TriX += (deltaX/k);
+    TriY += (deltaY/k);
+
+    glutSwapBuffers();
+}
+
+int main(int argc, char** argv) {
+    glutInit(&argc, argv);
+    glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE);
+    glutInitWindowSize(500, 500);
+    glutCreateWindow("Cursor Location Example");
+
+    glutReshapeFunc(resize);
+    glutDisplayFunc(display);
+    glutPassiveMotionFunc(passiveMotion); // Register passive motion callback
+
+//    glutTimerFunc(16, update, 0);
+    glutMainLoop();
+    return 0;
+}
