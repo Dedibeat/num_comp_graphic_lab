@@ -15,7 +15,9 @@ const int HEIGHT = 800;
 // Snake parameters
 std::vector<point2d> snake;
 int snakeLength = 2;       // initial length of snake segments
-float snakeSpeed = 3.0f;    // speed of snake head movement
+float snakeNonBoostSpeed = 2.0f;    // speed of snake head movement
+float snakeSpeed = 2.0f;
+float snakeBoostSpeed = 3.5f;
 float segmentSpacing = 10.0f; // distance between snake segments
 float bodyRadius = 5.0f;
 float RadPerFood = 0.05f;
@@ -107,24 +109,25 @@ void drawCircle(float cx, float cy, float r) {
     glEnd();
 }
 
-// Update snake position
-void updateSnake() {
-    point2d ToMouse((mouse.x - WIDTH/2), (mouse.y - HEIGHT/2));
-
-    double len = abs_val(ToMouse);
-    ToMouse /= len;
-
+void UpdateFacing(){
     Facing = snake[0] - snake[1];
+    Facing /= abs_val(Facing);
+    point2d ToMouse(mouse.x - WIDTH/2, mouse.y - HEIGHT/2);
+    ToMouse /= abs_val(ToMouse);
     double crossProd = cross(Facing,ToMouse);
     double theta = angle(Facing,ToMouse);
-
-    if(toDeg(theta) > 10){
+    if(toDeg(theta) > 5){
         if(crossProd > 0){
             Facing = rotatePoint(0.01,Facing);
         } else Facing = rotatePoint(-0.01,Facing);
     }
+}
+
+// Update snake position
+void updateSnake() {
 
     // Move head towards mouse
+    UpdateFacing();
 
     float dx = Facing.x;
     float dy = Facing.y;
@@ -182,9 +185,10 @@ void handleKeypress(unsigned char key, int x, int y) {;
     if (key == 'q' || key == 'Q') {
         exit(0);
     }
+    // Boost Mechanic
     if(key == 32){
-        if(snakeSpeed == 3.0f) snakeSpeed = 10.0f;
-        else snakeSpeed = 3.0f;
+        if(snakeSpeed == snakeNonBoostSpeed) snakeSpeed = snakeBoostSpeed;
+        else snakeSpeed = snakeNonBoostSpeed;
     }
 }
 
